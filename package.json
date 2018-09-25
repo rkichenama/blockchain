@@ -4,7 +4,8 @@
   "description": "experiements building a blockchain",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --verbose",
+    "test:watch": "jest --watch --verbose"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,45 @@
   "bugs": {
     "url": "https://github.com/rkichenama/blockchain/issues"
   },
-  "homepage": "https://github.com/rkichenama/blockchain#readme"
+  "homepage": "https://github.com/rkichenama/blockchain#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.1.0",
+    "@babel/core": "^7.1.0",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^23.6.0",
+    "jest": "^23.6.0",
+    "sha256": "^0.2.0",
+    "uuid": "^3.3.2"
+  },
+  "jest": {
+    "testMatch": [
+      "**/__tests__/**/*.js?(x)",
+      "**/?(*.)+(test).js?(x)"
+    ],
+    "setupFiles": [
+      "./config/rafShim.js"
+    ],
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "moduleNameMapper": {
+      "^appJsSrc/(.*)": "<rootDir>/app_js/src/$1",
+      "\\.(s?css|less)$": "identity-obj-proxy"
+    },
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json"
+    ],
+    "moduleDirectories": [
+      "node_modules"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/vendor/"
+    ],
+    "globals": {},
+    "testURL": "http://localhost/"
+  }
 }
