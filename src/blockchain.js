@@ -1,12 +1,10 @@
-const sha256 = require('sha256');
-const currentNodeUrl = process.argv[3];
-const uuid = require('uuid/v1');
+import sha256 from 'sha256';
 
 module.exports = class Blockchain {
-  constructor () {
+  constructor() {
     this.chain = [];
     this.pendingTransactions = [];
-    this.currentNodeUrl = currentNodeUrl;
+    this.currentNodeUrl = process.argv[3];
     this.networkNodes = [];
     this.createNewBlock(100, '0', '0');
   }
@@ -18,18 +16,30 @@ module.exports = class Blockchain {
       transactions: this.pendingTransactions,
       nonce,
       hash,
-      previousBlockHash
+      previousBlockHash,
     };
     this.pendingTransactions = [];
     this.chain.push(newBlock);
     return newBlock;
-  }
+  };
 
-  getLastBlock = () => this.chain.slice(-1)[0]
+  getLastBlock = () => this.chain.slice(-1)[0];
 
   createNewTransaction = (amount, sender, recipient) => {
     this.pendingTransactions.push({ amount, sender, recipient });
     const { index } = this.getLastBlock();
-    return (index + 1)
-  }
-}
+    return index + 1;
+  };
+
+  hashBlock = (previousBlockHash, currentBlockData, nonce) =>
+    sha256(`${previousBlockHash}${nonce}${JSON.stringify(currentBlockData)}`);
+
+  proofOfWork = (previousBlockHash, currentBlockData) => {
+    let nonce = 0;
+    let hash;
+    do {
+      hash = this.hashBlock(previousBlockHash, currentBlockData, ++nonce);
+    } while (!/^0000/.test(hash));
+    return nonce;
+  };
+};
