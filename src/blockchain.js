@@ -1,10 +1,12 @@
 import sha256 from 'sha256';
 
+const [ , , port, url ] = process.argv;
+console.log(url, port);
 module.exports = class Blockchain {
   constructor() {
     this.chain = [];
     this.pendingTransactions = [];
-    this.currentNodeUrl = process.argv[3];
+    this.currentNodeUrl = `${url}:${port}`;
     this.networkNodes = [];
     this.createNewBlock(100, '0', '0');
   }
