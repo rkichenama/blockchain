@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --verbose",
-    "test:watch": "jest --watch --verbose"
+    "test:watch": "jest --watch --verbose",
+    "start": "nodemon --watch src -e js src/index.js"
   },
   "repository": {
     "type": "git",
@@ -13,18 +14,24 @@
   },
   "author": "Richard Kichenama <rkichenama@gmail.com>",
   "license": "ISC",
+  "homepage": "https://github.com/rkichenama/blockchain#readme",
   "bugs": {
     "url": "https://github.com/rkichenama/blockchain/issues"
   },
-  "homepage": "https://github.com/rkichenama/blockchain#readme",
-  "devDependencies": {
+  "dependencies": {
     "@babel/cli": "^7.1.0",
     "@babel/core": "^7.1.0",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/preset-env": "^7.1.0",
+    "@babel/register": "^7.0.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3"
+  },
+  "devDependencies": {
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^23.6.0",
     "jest": "^23.6.0",
+    "nodemon": "^1.18.4",
     "sha256": "^0.2.0",
     "uuid": "^3.3.2"
   },
