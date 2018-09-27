@@ -6,6 +6,56 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Coin - Blockchain</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html, body {
+      margin: 0;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      box-sizing: border-box;
+    }
+    body {
+      background: #131313;
+      color: #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    body > form {
+      position: inherit;
+      box-sizing: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 60%;
+      height: 60%;
+    }
+    :focus {
+      outline: orangered auto 5px;
+    }
+    form textarea {
+      width: 100%;
+      height: calc(100% - 48px);
+      background: #333;
+      color: #fff;
+      border: solid #acacac;
+      border-width: 0 0 1px 1px;
+    }
+    form button {
+      max-height: 48px;
+      padding: 6px 12px;
+      margin: auto;
+      border-style: none;
+      border-radius: 6px;
+      color: unset;
+      background: darkslategray;
+    }
+    form button:hover {
+      background: slategray;
+      color: black;
+    }
+  </style>
 </head>
 
 <body>
