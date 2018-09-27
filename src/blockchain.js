@@ -1,7 +1,7 @@
 import sha256 from 'sha256';
+import uuid from 'uuid/v1';
 
 const [ , , port, url ] = process.argv;
-
 module.exports = class Blockchain {
   constructor() {
     this.chain = [];
@@ -28,10 +28,20 @@ module.exports = class Blockchain {
   getLastBlock = () => this.chain.slice(-1)[0];
 
   createNewTransaction = (amount, sender, recipient) => {
-    this.pendingTransactions.push({ amount, sender, recipient });
-    const { index } = this.getLastBlock();
-    return index + 1;
+    return {
+      amount,
+      sender,
+      recipient,
+      id: uuid().replace(/-/g, '')
+    };
   };
+
+  addTransaction = transaction => {
+    this.pendingTransactions.push(transaction);
+    return this.getNextIndex();
+  }
+
+  getNextIndex = ({ index } = this.getLastBlock()) => (index + 1);
 
   hashBlock = (previousBlockHash, currentBlockData, nonce) =>
     sha256(`${previousBlockHash}${nonce}${JSON.stringify(currentBlockData)}`);

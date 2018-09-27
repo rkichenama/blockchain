@@ -59,17 +59,24 @@ describe('Blockchain', () => {
   });
 
   it('should create a new transaction', () => {
-    const blockID = coin.createNewTransaction(50, 'send', 'recip');
-    const { index } = coin.getLastBlock();
-    expect(blockID).toEqual(index + 1);
-    expect(coin.pendingTransactions).toHaveLength(1);
-    expect(coin.pendingTransactions[0]).toMatchObject(
+    const transaction = coin.createNewTransaction(50, 'send', 'recip');
+    expect(transaction).toMatchObject(
       expect.objectContaining({
         amount: 50,
         sender: 'send',
         recipient: 'recip',
+        id: expect.any(String)
       })
     );
+  });
+
+  it('should add a new transaction to pending', () => {
+    const transaction = coin.createNewTransaction(50, 'send', 'recip');
+    const blockID = coin.addTransaction(transaction);
+    const { index } = coin.getLastBlock();
+    expect(blockID).toEqual(index + 1);
+    expect(coin.pendingTransactions).toHaveLength(1);
+    expect(coin.pendingTransactions[0]).toEqual(transaction);
   });
 
   it('should return a sha256 hash', () => {
