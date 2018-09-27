@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Coin - Blockchain</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+  <form>
+    <textarea name="list" placeholder="list of other servers"></textarea>
+    <button>Submit</button>
+  </form>
+  <script>
+    (function () {
+      'use strict';
+      const sa = (e, d = document) => [ ...d.querySelectorAll(e) ];
+      const s = (e, d = document) => sa(e, d).shift();
+
+      const form = s('form');
+      form.addEventListener('submit', evt => {
+        evt.preventDefault();
+        evt.stopPropagation();
+
+        const urls = s('textarea').value
+          .split(/[\n,]/)
+          .map(t => {
+            const e = t.trim();
+            return /^http:\/\//.test(e)
+              ? e
+              : `http://${e}`
+          });
+        urls.forEach(newNodeUrl => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', '/register-and-broadcast-node');
+          xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+          xhr.send(JSON.stringify({ newNodeUrl }));
+        })
+        console.table(urls)
+      });
+    })();
+  </script>
+</body>
+
+</html>

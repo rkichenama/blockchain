@@ -9,7 +9,11 @@
     "start": "run-p -l start:*",
     "start:1": "nodemon --watch src -e js src/networkNode.js 8089 localhost",
     "start:2": "nodemon --watch src -e js src/networkNode.js 8090 localhost",
-    "start:3": "nodemon --watch src -e js src/networkNode.js 8091 localhost"
+    "start:3": "nodemon --watch src -e js src/networkNode.js 8091 localhost",
+    "start:4": "nodemon --watch src -e js src/networkNode.js 8092 localhost",
+    "start:5": "nodemon --watch src -e js src/networkNode.js 8093 localhost",
+    "start:6": "nodemon --watch src -e js src/networkNode.js 8094 localhost",
+    "start:7": "nodemon --watch src -e js src/networkNode.js 8095 localhost"
   },
   "repository": {
     "type": "git",
@@ -48,6 +52,13 @@
     ],
     "setupFiles": [
       "./config/rafShim.js"
+    ],
+    "verbose": true,
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.js?(x)",
+      "!src/api.js",
+      "!src/networkNode.js"
     ],
     "transform": {
       "^.+\\.js$": "babel-jest"
