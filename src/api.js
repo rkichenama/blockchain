@@ -13,9 +13,18 @@ app.use(urlencoded({ extended: false }));
 
 const port = process.argv[2];
 const coin = new Blockchain();
+const fileOpts = {
+  root: __dirname,
+  maxAge: 0,
+  dotfiles: 'deny',
+  headers: {
+    'x-timestamp': Date.now(),
+    'x-sent': true,
+  },
+};
 
 app.get('/', (req, res) => {
-  res.send('Hello World');
+  res.sendFile('./index.html', fileOpts);
 });
 
 /* fetch entire blockchain */
@@ -52,51 +61,78 @@ app.get('/mine', (req, res) => {
 });
 
 /* register a node and broadcast it to the network */
-app.post('/register-and-broadcast-node', (req, res) => {
-  const { body: { newNodeUrl } } = req;
-  const { networkNodes } = coin;
-  const existingNodes = [ ...networkNodes ];
-
-  if (!(newNodeUrl in networkNodes)) { coin.networkNodes.push(newNodeUrl) }
-  Promise.all(
-    existingNodes.map(url => (
-      rp({
-        uri: `${url}/register-node`,
-        method: 'POST',
+const myUrl = `http://${coin.currentNodeUrl}`;
+app.post(
+  '/register-and-broadcast-node',
+  [
+    (req, res, next) => {
+      // skip it if it is this url or a known url
+      const {
         body: { newNodeUrl },
-        json: true
-      })
-    ))
-  ).then(data => (
-    rp({
-      uri: `${newNodeUrl}/register-nodes-bulk`,
-      method: 'POST',
-      body: { allNetworkNodes: [ ...existingNodes, `http://${coin.currentNodeUrl}` ] },
-      json: true
-    })
-  )).then(data => {
+      } = req;
+      const { networkNodes } = coin;
+      if (newNodeUrl in [...networkNodes, myUrl]) {
+        return;
+      }
+      next();
+    },
+    async (req, res, next) => {
+      // actually add and broadcast
+      const {
+        body: { newNodeUrl },
+      } = req;
+      const { networkNodes } = coin;
+      const existingNodes = [...networkNodes];
+      coin.networkNodes.push(newNodeUrl);
+      try {
+        const everybodyThisIs = await Promise.all(
+          existingNodes.map(url =>
+            rp({
+              uri: `${url}/register-node`,
+              method: 'POST',
+              body: { newNodeUrl },
+              json: true,
+            })
+          )
+        );
+        const andThisIsEverybody = await rp({
+          uri: `${newNodeUrl}/register-nodes-bulk`,
+          method: 'POST',
+          body: { allNetworkNodes: [...existingNodes, myUrl] },
+          json: true,
+        });
+      } catch (error) { /* */ }
+      next();
+    },
+  ],
+  (req, res) => {
+    // signal done-ness
     res.json({
-      result: 'success'
+      result: 'success',
     });
-  });
-});
+  }
+);
 
 /* register a node with the network */
 app.post('/register-node', (req, res) => {
-  const { body: { newNodeUrl } } = req;
+  const {
+    body: { newNodeUrl },
+  } = req;
   coin.networkNodes.push(newNodeUrl);
   res.json({
-    result: 'success'
+    result: 'success',
   });
 });
 
-/* register abulk nodes */
+/* register bulk nodes */
 app.post('/register-nodes-bulk', (req, res) => {
-  const { body: { allNetworkNodes } } = req;
+  const {
+    body: { allNetworkNodes },
+  } = req;
   const { networkNodes: currentNodes } = coin;
-  coin.networkNodes = [ ...currentNodes, ...allNetworkNodes ];
+  coin.networkNodes = [...currentNodes, ...allNetworkNodes];
   res.json({
-    result: 'success'
+    result: 'success',
   });
 });
 

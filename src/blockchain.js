@@ -1,7 +1,7 @@
 import sha256 from 'sha256';
 
 const [ , , port, url ] = process.argv;
-console.log(url, port);
+
 module.exports = class Blockchain {
   constructor() {
     this.chain = [];
