@@ -35,11 +35,51 @@ app.get('/blockchain', (req, res) => {
 /* create a new transaction */
 app.post('/transaction', (req, res) => {
   const {
-    body: { amount, sender, recipient },
+    body: { transaction },
   } = req;
-  const transaction = coin.createNewTransaction(amount, sender, recipient);
-  res.json({ transaction });
+  coin.addTransaction(transaction);
+  res.json({
+    result: 'success',
+    transaction
+  });
 });
+app.post(
+  '/transaction/broadcast',
+  [
+    (req, res, next) => {
+      const {
+        body: { amount, sender, recipient },
+      } = req;
+      const transaction = coin.createNewTransaction(amount, sender, recipient);
+      coin.addTransaction(transaction);
+      req.transaction = transaction;
+    },
+    async (req, res, next) => {
+      const { transaction } = req;
+      try {
+        await Promise.all(
+          coin.networkNodes.map(url =>
+            rp({
+              uri: `${url}/transaction`,
+              method: 'POST',
+              body: { transaction },
+              json: true,
+            })
+          )
+        );
+      } catch (error) {
+        /* */
+      }
+      next();
+    },
+  ],
+  ({ transaction }, res) => {
+    res.json({
+      result: 'success',
+      transaction
+    });
+  }
+);
 
 /* mine a new block */
 app.get('/mine', (req, res) => {
@@ -85,23 +125,27 @@ app.post(
       const existingNodes = [...networkNodes];
       coin.networkNodes.push(newNodeUrl);
       try {
-        const everybodyThisIs = await Promise.all(
-          existingNodes.map(url =>
+        await Promise.all([
+          // tell everyone known
+          ...existingNodes.map(url =>
             rp({
               uri: `${url}/register-node`,
               method: 'POST',
               body: { newNodeUrl },
               json: true,
             })
-          )
-        );
-        const andThisIsEverybody = await rp({
-          uri: `${newNodeUrl}/register-nodes-bulk`,
-          method: 'POST',
-          body: { allNetworkNodes: [...existingNodes, myUrl] },
-          json: true,
-        });
-      } catch (error) { /* */ }
+          ),
+          // tell the new one
+          rp({
+            uri: `${newNodeUrl}/register-nodes-bulk`,
+            method: 'POST',
+            body: { allNetworkNodes: [...existingNodes, myUrl] },
+            json: true,
+          });
+        ]);
+      } catch (error) {
+        /* */
+      }
       next();
     },
   ],
